@@ -11,22 +11,22 @@ type ConcurrentEngine struct {
 
 
 func (e *ConcurrentEngine) Run(requests ...Request) {
-	out := make(chan []Request)
+	out := make(chan Request)
 	scheduler := &Scheduler{
 		WorkerChan: make(chan Request),
 	}
 
 	go func() {
-		for _, v := range requests {
-			scheduler.Submit(v)
-		}
+		//for i := 0; i < 10 ; i++ {
+			CreateWorker(scheduler.WorkerChan, out)
+		//}
 	}()
 
-	for i := 0; i < 10; i++ {
-		CreateWorker(scheduler.WorkerChan, out)
+	for _, v := range requests {
+		scheduler.Submit(v)
 	}
-	for _, req := range <-out {
-		scheduler.Submit(req)
+	for {
+		scheduler.Submit(<-out)
 	}
 	// 获取剩下的任务 并加入到新的队列中
 	//reqs, err := Work(req)
@@ -35,17 +35,21 @@ func (e *ConcurrentEngine) Run(requests ...Request) {
 
 }
 
-func CreateWorker(in chan Request, out chan []Request) {
-	//go func() {
+func CreateWorker(in chan Request, out chan Request) {
+	go func() {
 		for {
 			request := <- in
 			result, err := Work(request)
 			if err != nil {
 				continue
 			}
-			out <- result
+			go func() {
+				for _, v := range result {
+					out <- v
+				}
+			}()
 		}
-	//}()
+	}()
 }
 
 
