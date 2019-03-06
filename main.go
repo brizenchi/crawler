@@ -1,15 +1,13 @@
 package main
 
-import (
-	"crawler/engine"
-	"crawler/zhenai/parser"
-)
+import "crawler/rpc"
 
 func main() {
 	// 启动engine
-	e := &engine.ConcurrentEngine{}
-	e.Run(engine.Request{
-		Url: "http://www.zhenai.com/zhenghun",
-		ParserFunc: parser.ParserCityList,
-	})
+	//e := &engine.ConcurrentEngine{}
+	//e.Run(engine.Request{
+	//	Url: "http://www.zhenai.com/zhenghun",
+	//	ParserFunc: parser.ParserCityList,
+	//})
+	rpc.Test()
 }
